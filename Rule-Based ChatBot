@@ -1,96 +1,51 @@
-import random
 import re
 
 class RuleBot:
-    ### Potential Negative Responses
-    negative_responses = ("no", "nope", "hindi", "not that", "wrong")
-    ### Exit conversation Keywords
     exit_commands = ("bye", "thanks", "done", "quit", "ty", "thats all", "thank you", "thank u")
-    ### Random starter questions
-    random_questions = (
-        "Hello, do you like to learn basic Casiguran Agta words?",
-        "Do you prefer to use English or Tagalog?",
-        "Do you want to learn Casiguran Agta phrases?",
-        "Do you want to learn what our project aims to be?",
-    )
+    
+    translations = {
+        "Good to see you": {"filipino": "Buti na lang nakita kita", "casiguran_agta": "meta"},
+        "How are you": {"filipino": "Kamusta ka na?", "casiguran_agta": "Kumusta kam dén"},
+        "I am fine": {"filipino": "Mabuti naman.", "casiguran_agta": "ma ige be"},
+        "Thank you": {"filipino": "Maraming salamat.", "casiguran_agta": "me ado a salamat"},
+        "I am sorry": {"filipino": "Patawarin mo ako.", "casiguran_agta": "Patawadén nék mo"},
+        "Yes": {"filipino": "Opo.", "casiguran_agta": "on"},
+        "No": {"filipino": "Hindi po.", "casiguran_agta": "ewan be"},
+        "What is your name": {"filipino": "Ano ang pangalan mo?", "casiguran_agta": "anya i ngahen moa"},
+        "I love you": {"filipino": "Mahal kita.", "casiguran_agta": "gusto taka"},
+        "Welcome home": {"filipino": "Maligayang pagdating.", "casiguran_agta": "mehusay a demét"},
+        "God bless you": {"filipino": "Pagpalain ka nawa ng Panginoon.", "casiguran_agta": "kagbian ka na Apo"},
+        "dog": {"filipino": "aso", "casiguran_agta": "aso"},
+        "happy": {"filipino": "masaya", "casiguran_agta": "mesahat"},
+        "family": {"filipino": "pamilya", "casiguran_agta": "mététena"},
+    }
 
     def __init__(self):
-        self.agtababble = {
-            'describe_project_goal': r' .*\s*project goal.*',
-            'answer_languageuse_intent': r'english.*',
-            'answer_agtaword_intent': r' .*\s*agta\.*',
-            'about_session': r' .*\s*session*'
-        }
+        print("Welcome to the Casiguran Agta language chatbot! Type a word or phrase to translate.")
 
-    def greet(self):
-        self.name = input("What is your name?\n")
-        user_name = input(
-            f"Hi {self.name}, I am here to help you learn or teach you some basic words and phrases about the Casiguran Agta language. Shall we proceed?\n")
-        if user_name in self.negative_responses:
-            print("Ok, goodbye!")
-            return
-        self.chat()
+    def translate(self, user_input):
+        # Convert input to lowercase and remove punctuation
+        user_input = re.sub(r'[^a-zA-Z0-9\s]', '', user_input.lower())
 
-    def make_exit(self, reply):
-        for command in self.exit_commands:
-            if reply == command:
-                print("Ok, goodbye!")
-                return True
+        for english, translations in self.translations.items():
+            # Convert stored phrases to lowercase and remove punctuation for better matching
+            english_clean = re.sub(r'[^a-zA-Z0-9\s]', '', english.lower())
+            filipino_clean = re.sub(r'[^a-zA-Z0-9\s]', '', translations['filipino'].lower())
+            agta_clean = re.sub(r'[^a-zA-Z0-9\s]', '', translations['casiguran_agta'].lower())
+
+            # Check if ANY keyword is found inside the user input
+            if english_clean in user_input or filipino_clean in user_input or agta_clean in user_input:
+                return f"English: {english}\nFilipino: {translations['filipino']}\nCasiguran Agta: {translations['casiguran_agta']}"
+
+        return "Sorry, I don't have a translation for that yet."
 
     def chat(self):
-        reply = input(random.choice(self.random_questions)).lower()
-        while not self.make_exit(reply):
-          reply = input(self.match_reply(reply))
-
-    def match_reply(self, reply):
-        for key, value in self.agtababble.items():
-            intent = key
-            regex_pattern = value
-            found_match = re.match(regex_pattern, reply)
-            if found_match and intent == 'describe_project_goal':
-                return self.describe_project_goal()
-            elif found_match and intent == 'answer_languageuse_intent':
-                return self.answer_languageuse_intent()
-            elif found_match and intent == 'answer_agtaword_intent':
-                return self.answer_agtaword_intent()
-            elif found_match and intent == 'about_session':
-                return self.about_session()
-        return self.no_match_intent()
-
-    def describe_project_goal(self):
-        responses = (
-            "Our project aims to preserve the language of Casiguran Agta, which is considered an endangered language in the Philippines.\n",
-            "Our goal for this project is to implement a system that can help preserve an endangered language with the use of a chatbot.\n"
-        )
-        return random.choice(responses)
-
-    def answer_languageuse_intent(self):
-        responses = (
-            "You have chosen English as your input.\n",
-            "You have chosen Tagalog as your input.\n"
-        )
-        return random.choice(responses)
-
-    def answer_agtaword_intent(self):
-        responses = (
-            "The Agta word for dog is 'Osa'.\n",
-            "Kumaon ka na? means 'Did you eat?'.\n"
-        )
-        return random.choice(responses)
-
-    def about_session(self):
-        responses = (
-            "Session was cool.\n",
-            "Its February.\n"
-        )
-        return random.choice(responses)
-
-    def no_match_intent(self):
-        responses = (
-            "Can you elaborate it more?\n",
-            "What do you mean?\n"
-        )
-        return random.choice(responses)
+        while True:
+            user_input = input("Enter a word or phrase (or type 'quit' to exit): ")
+            if user_input.lower() in self.exit_commands:
+                print("Goodbye! Maraming salamat!")
+                break
+            print(self.translate(user_input))
 
 AgtaBot = RuleBot()
-AgtaBot.greet()
+AgtaBot.chat()
