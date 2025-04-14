@@ -1,0 +1,22 @@
+!pip install pydub
+!apt install ffmpeg
+
+
+import os
+from pydub import AudioSegment
+
+
+folder_path = "/content/drive/MyDrive/audio_inputs"
+
+
+for file_name in os.listdir(folder_path):
+    if file_name.endswith(".m4a"):
+        input_file = os.path.join(folder_path, file_name)
+        output_file = os.path.join(folder_path, file_name.replace(".m4a", ".wav"))
+
+        # Convert to wav
+        sound = AudioSegment.from_file(input_file, format="m4a")
+        sound.export(output_file, format="wav")
+        print(f"Converted: {file_name} -> {output_file}")
+
+print("✅ All files converted.")
